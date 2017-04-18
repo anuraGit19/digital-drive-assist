@@ -36,7 +36,11 @@
         <service
             android:name=".activities.services.SampleService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true">
+        <service
+            android:name="activities.services.FetchAddressIntentService"
+            android:exported="false"/>
+        </service>
     </application>
 
 </manifest>
