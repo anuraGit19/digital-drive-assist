@@ -8,6 +8,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.provider.SyncStateContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -32,6 +33,7 @@ import com.google.android.gms.location.LocationServices;
 import com.asu.mc.digitalassist.activities.services.FetchAddressIntentService;
 import com.asu.mc.digitalassist.activities.utility.Constants;
 import java.util.List;
+import java.util.logging.Handler;
 
 public class RestaurantActivity extends ListActivity implements OnConnectionFailedListener, ConnectionCallbacks {
 
@@ -46,6 +48,8 @@ public class RestaurantActivity extends ListActivity implements OnConnectionFail
 
     protected Location mLastLocation;
     private AddressResultReceiver mResultReceiver;
+    protected boolean mAddressRequested;
+    protected String mAddressOutput;
 
 
     protected final int MY_PERMISSIONS_REQUEST_READ_LOCATION = 1;
@@ -63,6 +67,8 @@ public class RestaurantActivity extends ListActivity implements OnConnectionFail
 //        buildGoogleApiClient();
 
         new FetchRestaurantTask().execute("85281");
+        mResultReceiver = new AddressResultReceiver(new Handler());
+        startAddressIntentService();
 
     }
 
@@ -127,7 +133,7 @@ public class RestaurantActivity extends ListActivity implements OnConnectionFail
                 // TODO: No explanation added yet
 
             } else {
-                Log.d(TAG, "Requesting persmission from user");
+                Log.d(TAG, "Requesting permission from user");
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_READ_LOCATION);
             }
         }
@@ -220,4 +226,31 @@ public class RestaurantActivity extends ListActivity implements OnConnectionFail
         Log.i(TAG, "Inside On onConnectionSuspended");
 //        mGoogleApiClient.connect();
     }
+
+    class AddressResultReceiver extends ResultReceiver {
+        public AddressResultReceiver(Handler handler) {
+            super(handler);
+        }
+
+        /**
+         *  Receives data sent from FetchAddressIntentService and updates the UI in MainActivity.
+         */
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+
+            // Display the address string or an error message sent from the intent service.
+            mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
+            // Address Update on UI - displayAddressOutput();
+
+            // Show a toast message if an address was found.
+            if (resultCode == Constants.SUCCESS_RESULT) {
+                Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+            }
+
+            // Reset. Enable the Fetch Address button and stop showing the progress bar.
+            //mAddressRequested = false;
+            //updateUIWidgets();
+        }
+    }
+
 }
