@@ -1,7 +1,9 @@
 package com.asu.mc.digitalassist.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Geocoder;
@@ -14,9 +16,9 @@ import android.provider.SyncStateContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,8 +26,9 @@ import android.widget.Toast;
 import com.asu.mc.digitalassist.R;
 import com.asu.mc.digitalassist.activities.models.Restaurant;
 import com.asu.mc.digitalassist.activities.rsclient.RestaurantApiClient;
-import com.asu.mc.digitalassist.activities.utility.LocationUtility;
+import com.asu.mc.digitalassist.activities.services.NotificationService;
 import com.asu.mc.digitalassist.activities.utility.RestaurantListAdapter;
+import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -50,10 +53,16 @@ public class RestaurantActivity extends ListActivity implements OnConnectionFail
     private AddressResultReceiver mResultReceiver;
     protected boolean mAddressRequested;
     protected String mAddressOutput;
-
+    protected ListView restaurantListView;
 
     protected final int MY_PERMISSIONS_REQUEST_READ_LOCATION = 1;
-
+    /*For notification*/
+    private static IdpResponse idpResponse = null;
+    public static Intent createIntent(Context context,IdpResponse response){
+        Intent intent = new Intent(context,RestaurantActivity.class);
+        idpResponse = response;
+        return intent;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +78,7 @@ public class RestaurantActivity extends ListActivity implements OnConnectionFail
         new FetchRestaurantTask().execute("85281");
         mResultReceiver = new AddressResultReceiver(new Handler());
         startAddressIntentService();
+        startService(NotificationService.createIntentOverSpeedNotificationService(getApplicationContext()));
 
     }
 
@@ -105,8 +115,11 @@ public class RestaurantActivity extends ListActivity implements OnConnectionFail
         }
 
         protected void onPostExecute(List<Restaurant> restaurantList) {
-            if (restaurantList.size() > 0) {
-                setListAdapter(new RestaurantListAdapter(RestaurantActivity.this, restaurantList));
+            if (restaurantList != null && restaurantList.size() > 0) {
+                ArrayAdapter<Restaurant> restaurantArrayAdapter = new RestaurantListAdapter(RestaurantActivity.this, restaurantList);
+                setListAdapter(restaurantArrayAdapter);
+            } else {
+                Toast.makeText(getApplicationContext(), "No restaurants for the current location", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -142,7 +155,11 @@ public class RestaurantActivity extends ListActivity implements OnConnectionFail
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
-        Toast.makeText(this, "Selected Item: " + position, Toast.LENGTH_SHORT).show();
+        Intent moveToWebView = new Intent(this, RestaurantWebViewActivity.class);
+        Restaurant res = (Restaurant) getListAdapter().getItem(position);
+        String url = res.getMobileUrl();
+        moveToWebView.putExtra("EXTRA_URL", url);
+        startActivity(moveToWebView);
     }
 
     @Override
@@ -227,6 +244,7 @@ public class RestaurantActivity extends ListActivity implements OnConnectionFail
 //        mGoogleApiClient.connect();
     }
 
+    @SuppressLint("ParcelCreator")
     private class AddressResultReceiver extends ResultReceiver {
 
         public AddressResultReceiver(Handler handler) {
