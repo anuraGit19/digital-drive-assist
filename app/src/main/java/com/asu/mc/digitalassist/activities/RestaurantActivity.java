@@ -8,6 +8,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.ResultReceiver;
 import android.provider.SyncStateContract;
 import android.support.annotation.NonNull;
@@ -33,7 +34,6 @@ import com.google.android.gms.location.LocationServices;
 import com.asu.mc.digitalassist.activities.services.FetchAddressIntentService;
 import com.asu.mc.digitalassist.activities.utility.Constants;
 import java.util.List;
-import java.util.logging.Handler;
 
 public class RestaurantActivity extends ListActivity implements OnConnectionFailedListener, ConnectionCallbacks {
 
@@ -227,7 +227,8 @@ public class RestaurantActivity extends ListActivity implements OnConnectionFail
 //        mGoogleApiClient.connect();
     }
 
-    class AddressResultReceiver extends ResultReceiver {
+    private class AddressResultReceiver extends ResultReceiver {
+
         public AddressResultReceiver(Handler handler) {
             super(handler);
         }
@@ -244,7 +245,8 @@ public class RestaurantActivity extends ListActivity implements OnConnectionFail
 
             // Show a toast message if an address was found.
             if (resultCode == Constants.SUCCESS_RESULT) {
-                Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "address - Found ");
+                //Toast.makeText(this, "dkbajs", Toast.LENGTH_SHORT).show();
             }
 
             // Reset. Enable the Fetch Address button and stop showing the progress bar.
