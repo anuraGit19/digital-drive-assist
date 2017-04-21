@@ -9,7 +9,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.asu.mc.digitalassist.activities.utility.UserProfileActivity"
+    tools:context="com.asu.mc.digitalassist.activities.UserProfileActivity"
     tools:showIn="@layout/activity_user_profile">
 
 </RelativeLayout>

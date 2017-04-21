@@ -35,17 +35,21 @@
 
         <activity android:name=".activities.RestaurantWebViewActivity" />
         <activity android:name=".activities.LoginActivity">
+
+        </activity>
+        <activity android:name=".activities.utility.ResultActivity" />
+        <activity
+            android:name=".activities.UserProfileActivity"
+            android:label="@string/title_activity_user_profile"
+            android:theme="@style/AppTheme.NoActionBar">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
-        <activity android:name=".activities.utility.ResultActivity" />
-        <activity
-            android:name=".activities.utility.UserProfileActivity"
-            android:label="@string/title_activity_user_profile"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

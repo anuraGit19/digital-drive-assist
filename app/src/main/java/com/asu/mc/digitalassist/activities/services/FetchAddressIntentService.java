@@ -21,7 +21,6 @@ import java.util.Locale;
 public class FetchAddressIntentService extends IntentService{
 
     private static final String TAG = "FetchAddressIS";
-    //private GetLocationFromLatLong locationFromLatLong;
     private Double latitude;
     private Double longitude;
     protected ResultReceiver mReceiver;
